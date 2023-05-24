@@ -34,10 +34,9 @@ def write_in_pdf(pdfFileObj):
     if(len(pdfReader.pages)>1):
         print('Warning: There are multiple pages in this pdf. Only the first page will be looked at')
     
-    page = pdfReader.pages[0]
-    text = page.extract_text(0)
+    texts = str.split(pdfReader.pages[0].extract_text(0), "\n")
 
-    print(str.split(text, "\n"))
+    print(texts)
     
 
 
