@@ -1,11 +1,11 @@
 import requests
 import os
-import selenium
+#import selenium
 import PyPDF2
 
-from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.by import By
+#from selenium import webdriver
+#from selenium.webdriver.common.keys import Keys
+#from selenium.webdriver.common.by import By
 
 
 def get_pdf(url:str):
@@ -27,6 +27,7 @@ def get_pdf(url:str):
 
 def get_price(text:str):
     
+    return 123
 
 def write_price_in_pdf(pdfFileObj):
     # creating a pdf file object
@@ -37,10 +38,16 @@ def write_price_in_pdf(pdfFileObj):
     if(len(pdfReader.pages)>1):
         print('Warning: There are multiple pages in this pdf. Only the first page will be looked at')
     
+
+
+
+    
     page0 = pdfReader.pages[0].extract_text(0)
     
     if "Pris" or "pris" in page0:
-        print(f'The book {sldkf} already has a price')
+        print(f'The book {0} already has a price')
+    else:
+        get_price(page0)
     
     texts = str.split(page0, "\n")
 
@@ -49,19 +56,6 @@ def write_price_in_pdf(pdfFileObj):
 
 
 
-
-
-
-
-
-if __name__ == '__main__':
-    # URL from which pdfs to be downloaded
-    #URL = 'https://learnit.itu.dk/mod/resource/view.php?id=152145'
-    #get_pdf(URL)
-    pdfFileObj = open('welcome.pdf', 'rb')
-    write_in_pdf(pdfFileObj)
-
-    
 
 
 
