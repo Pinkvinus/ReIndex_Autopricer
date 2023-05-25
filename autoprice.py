@@ -25,7 +25,10 @@ def get_pdf(url:str):
         print(f'HTTP response status code: {response.status_code}')
         return False
 
-def write_in_pdf(pdfFileObj):
+def get_price(text:str):
+    
+
+def write_price_in_pdf(pdfFileObj):
     # creating a pdf file object
     
     # creating a pdf reader object
@@ -34,7 +37,12 @@ def write_in_pdf(pdfFileObj):
     if(len(pdfReader.pages)>1):
         print('Warning: There are multiple pages in this pdf. Only the first page will be looked at')
     
-    texts = str.split(pdfReader.pages[0].extract_text(0), "\n")
+    page0 = pdfReader.pages[0].extract_text(0)
+    
+    if "Pris" or "pris" in page0:
+        print(f'The book {sldkf} already has a price')
+    
+    texts = str.split(page0, "\n")
 
     print(texts)
     
