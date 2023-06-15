@@ -59,6 +59,12 @@ def get_PDFreceipt_text(source:str)-> str:
 
     return page0
 
+def lookup_price(booktitle:str):
+    with open("ghg books/bookprices.txt") as file:
+        lines = [line.rstrip() for line in file]
+
+    if booktitle in lines:
+        print(lines)
 
 if __name__ == '__main__':
     sti = "C:/Users/Public/Documents/Regninger/Alma Paldan O'Brien - 3k - inkl. pris.pdf"
@@ -66,12 +72,6 @@ if __name__ == '__main__':
 
     bp = get_booksprice(get_PDFreceipt_text(sti2))
 
-
-
-
-
-
-
-
-
-
+    for book, price in bp:
+        if price == None:
+            lookup_price(book)
