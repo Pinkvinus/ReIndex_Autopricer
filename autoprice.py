@@ -2,6 +2,8 @@ import os
 import PyPDF2
 import re
 from fpdf import FPDF
+import tkinter
+from tkinter import filedialog
 
 def get_booksprice(text:str):
     """
@@ -70,9 +72,12 @@ def load_hashmap():
     BPDict = {}
     with open("ghg books/bookprices.txt") as file:
         lines = [line.rstrip() for line in file]
+        print(lines)
     for bp in lines:
-        book, price = bp.split(" ; ")
-        BPDict[book] = price
+
+        print(bp)
+        book, price = bp.split(";")
+        BPDict[book.strip()] = price.strip()
     return BPDict
     
 def lookup_price(booktitle:str):
@@ -152,17 +157,25 @@ def write_prices_pdf(path:str, prices):
     with open(path, "wb") as fp:
         writer.write(fp)
 
-
-
 if __name__ == '__main__':
     sti = "C:/Users/MMZ/Desktop/Alma Paldan O'Brien - 3k - inkl. pris.pdf"
     sti2 = "C:/Users/MMZ/Desktop/Asta Keogan Schlottmann - 3d.pdf"
+
+    tkinter.Tk().withdraw() # prevents an empty tkinter window from appearing
+    folder_path = filedialog.askdirectory()
+
+    if folder_path == "":
+        print("No folder was selected")
 
     pdf_file_path = sti2
 
     bp = get_booksprice(get_PDFreceipt_text(pdf_file_path))
 
+    prices = []
+
     for book, price in bp:
         if price == None:
             price = lookup_price(book)
-            write_prices_pdf(pdf_file_path, price)
+        prices.append(price)
+
+    write_prices_pdf(pdf_file_path, prices)
