@@ -5,16 +5,17 @@ from fpdf import FPDF
 import tkinter
 from tkinter import filedialog
 
-def get_booksprice(text:str):
+def get_booksprice(filepath:str):
     """
     params: A string of text that has been extracted from a pdf receipt
     returns: A list of book title and price pairs. If the price is not in the file, the price is set to None
     """
+    text = get_PDFreceipt_text(filepath)
 
     spliton1 = 'rykker'
     spliton2 = 'ved gennemgang af bibliotekets udlån kan vi se'
 
-    if has_price(text):
+    if has_price(text, filepath):
         spliton1 = 'pris\n'
         spliton2 = 'samlet'
     
@@ -32,19 +33,19 @@ def get_booksprice(text:str):
         bookprice.append(b)
     return bookprice
 
-def has_price(text:str)-> bool:
+def has_price(text:str, filepath)-> bool:
     """
     params:  A text extracted from a PDF receipt
     returns: A bool on whether the receipt contains a price
     """
     if "rykker" in text:
-        print(f'The book(s) in this file does not have a price')
+        print(f'The book(s) in the file: \"{filepath}\" does not have a price\n')
         return False
     elif "pris" in text:
-        print(f'The book(s) in this file have a price')
+        print(f'The book(s) in the file: \"{filepath}\" has a price\n')
         return True
     else:
-        print('unable to determine if the books have a price')
+        print(f'unable to determine if the books in the file: \"{filepath}\" have a price\n')
         return False
 
 def get_PDFreceipt_text(source:str)-> str:
@@ -70,12 +71,9 @@ def load_hashmap():
     returns: A hashmap that contains the title of the books as a key, and the price of the book as a value
     """
     BPDict = {}
-    with open("ghg books/bookprices.txt") as file:
+    with open("ghg books/bookprices.txt", encoding='utf-8') as file:
         lines = [line.rstrip() for line in file]
-        print(lines)
     for bp in lines:
-
-        print(bp)
         book, price = bp.split(";")
         BPDict[book.strip()] = price.strip()
     return BPDict
@@ -115,7 +113,7 @@ def write_price_to_file(booktitle:str, price):
     Appends the title and the book price to a file
     params: booktitle of a book, the price of the given book
     """
-    with open("ghg books/bookprices.txt", "a") as fileobj:
+    with open("ghg books/bookprices.txt", "a", encoding='utf-8') as fileobj:
         fileobj.write(f"{booktitle} ; {price}\n")
     print(f"\"{booktitle}\" has been recorded with the price: {price}")  
 
@@ -142,6 +140,7 @@ def write_prices_pdf(path:str, prices):
     for p in prices: 
         pdf.set_xy(x, y)
         pdf.set_font('arial', '', 6.0)
+        p = str(p)
         pdf.cell(ln=0, h=5.0, align='L', w=0, txt=p, border=0)
         y+=4
     
@@ -154,28 +153,33 @@ def write_prices_pdf(path:str, prices):
 
     writer = PyPDF2.PdfWriter()
     writer.add_page(page_base)
-    with open(path, "wb") as fp:
-        writer.write(fp)
+
+    try:
+        with open(path, "wb") as fp:
+            writer.write(fp)
+    except PermissionError:
+        print(f"The programme does not have permission to write in the file \"{path}\". Please make sure that the file is not open in other programmes.")
 
 if __name__ == '__main__':
-    sti = "C:/Users/MMZ/Desktop/Alma Paldan O'Brien - 3k - inkl. pris.pdf"
-    sti2 = "C:/Users/MMZ/Desktop/Asta Keogan Schlottmann - 3d.pdf"
-
     tkinter.Tk().withdraw() # prevents an empty tkinter window from appearing
     folder_path = filedialog.askdirectory()
 
     if folder_path == "":
         print("No folder was selected")
+        exit()
 
-    pdf_file_path = sti2
+    dir_list = os.listdir(folder_path)
+    
+    for file in os.listdir(folder_path):
+        if file.endswith(".pdf"):
+            filepath = os.path.join(folder_path, file)
 
-    bp = get_booksprice(get_PDFreceipt_text(pdf_file_path))
+            bp = get_booksprice(filepath)
+            prices = []
 
-    prices = []
+            for book, price in bp:
+                if price == None:
+                    price = lookup_price(book)
+                prices.append(price)
 
-    for book, price in bp:
-        if price == None:
-            price = lookup_price(book)
-        prices.append(price)
-
-    write_prices_pdf(pdf_file_path, prices)
+            write_prices_pdf(filepath, prices)
